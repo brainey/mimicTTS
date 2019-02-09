@@ -93,43 +93,19 @@ main(int argc, char *argv[]) {
     const char *callsign = callsigns[i];
     char buff[MAX_MATCHES * 10] = "";
     char *bp = &buff[0];
-    char *bp_end = bp + sizeof(buff);
+    char *bp_end = bp + 9; //sizeof(buff);
     char
       *whole,
       *prefix,
       *suffix;
     regmatch_t matches[MAX_MATCHES];
-    int mlen;
 
     if (regexec(&regex, callsign, MAX_MATCHES, matches, 0) == 0) {
-      // printf("m[0] %d - %d\n", matches[0].rm_so, matches[0].rm_eo);
-      // printf("m[1] %d - %d\n", matches[1].rm_so, matches[1].rm_eo);
-      // printf("m[2] %d - %d\n", matches[2].rm_so, matches[2].rm_eo);
-      // printf("m[3] %d - %d\n", matches[3].rm_so, matches[3].rm_eo);
-      // printf("m[4] %d - %d\n", matches[4].rm_so, matches[4].rm_eo);
-      bp = &buff[0];
-      whole = bp;
       regmatch_t *matchp = &matches[0];
-      // printf("match %d - %d\n", matchp->rm_so, matchp->rm_eo);
-      mlen = matchp->rm_eo - matchp->rm_so;
-      memcpy(bp, callsign + matchp->rm_so, mlen);
-      bp += mlen;
-      *bp++ = '\0';
-      prefix = bp;
-      matchp++;
-      // printf("match %d - %d\n", matchp->rm_so, matchp->rm_eo);
-      mlen = matchp->rm_eo - matchp->rm_so;
-      memcpy(bp, callsign + matchp->rm_so, mlen);
-      bp += mlen;
-      *bp++ = '\0';
-      suffix = bp;
-      matchp++;
-      // printf("match %d - %d\n", matchp->rm_so, matchp->rm_eo);
-      mlen = matchp->rm_eo - matchp->rm_so;
-      memcpy(bp, callsign + matchp->rm_so, mlen);
-      bp += mlen;
-      *bp++ = '\0';
-
+      whole = bp;
+      prefix = extract_match(bp, bp_end, callsign, matchp++);
+      suffix = extract_match(prefix, bp_end, callsign, matchp++);
+      extract_match(suffix, bp_end, callsign, matchp++);
       printf("whole: %s prefix: %s suffix: %s\n", whole, prefix, suffix);
     }
   }
